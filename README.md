@@ -53,12 +53,12 @@ IoT 구성 (IoT Composition)
 IoT 개발 환경 (IoT Development Environment)
 ====================================
 
-1. MQTT Broker Server
+###### MQTT Broker Server
  - Windows 7 Pro, 64-bit
  - Mosquitto Eclipse v1.5.1
  - MQTT Protocol Version v3.1.1
  - OpenSSL v1.1
-2. Hardware(Raspberry Pi)
+###### Hardware(Raspberry Pi)
  - Raspbian, NOOBS v2.8.2
  - Paho.mqtt lib, v1.4.0
 <br><br><br>
