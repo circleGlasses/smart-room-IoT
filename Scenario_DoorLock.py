@@ -18,7 +18,7 @@ Token Definition
 
 # initialize variables for MQTT
 Topic_For_Sub_Door ='/rooms/202/door'
-broker = '163.152.223.99' # 사용하기 위해 인증서 Common Name 과 맞춰줘야 함 *중요
+broker = 'xxx.xxx.xxx.xxx' # 사용하기 위해 인증서 Common Name 과 맞춰줘야 함 *중요
 port = 8883 # SSL/TLS default version tlsv1.2
 
 # initialize variables for Light Sensor
@@ -34,15 +34,15 @@ unlock_angle = 11.0
 p = GPIO.PWM(servo_motor, 50)
 p.start(7.5)
 p.ChangeDutyCycle(lock_angle)
-servo_motor_status = 1 # Door Status 1 = Unlocked, 0 = Locked
+servo_motor_status = 1 # door state 1 = Unlocked, 0 = Locked
 
 
 
-# Light Sensor
+# light Sensor
 def rc_time(light_sensor):
     count = 0
     
-    # Output on the pin for
+    # output on the pin for
     GPIO.setup(light_sensor, GPIO.OUT) # 4번 핀을 입력으로 설정
     GPIO.output(light_sensor, GPIO.LOW) # 4번 핀의 디지털 출력 설정
     
@@ -61,26 +61,24 @@ def rc_time(light_sensor):
         
     return count
 
-# Servo Motor
+# servo Motor
 def control_global_variables(value):
     global servo_motor_status
     servo_motor_status = value
 
-# Servo Motor
+# servo Motor
 def setAngle(angle):
     p.ChangeDutyCycle(angle)
     time.sleep(1)
 
 # MQTT
 def on_message(client, userdata, message):
-    #message.topic = message.topic.decode("utf-8")
-    #message.payload = message.payload.decode("utf-8")
     msg = str(message.topic)
     payload = str(message.payload)
     print(msg)
     print(payload)
  
-    # Lock/Unlock the door by the value of user
+    # lock/unlock the door by the value passed from a guest
     if(message.topic == Topic_For_Sub_Door):
         if(message.payload.decode("utf-8") == 'open'):
             print("Door Unlocked by MQTT")
@@ -98,16 +96,16 @@ def on_message(client, userdata, message):
 
 
 
-# Establish connection with broker over SSL/TLS protocol
+# establish a connection with a broker over SSL/TLS protocol
 client = paho.Client()
 client.tls_set("/home/pi/sw_contest/Scenario_DoorLock/ca_pl.crt", tls_version=2) # tls_version=2 is refered to tlsv1.2
-client.tls_insecure_set(True) # Enable client to overlap its ip addr to connect to mqtt broker server
-client.connect(broker, port) # Request connection to mqtt broker server over SSL/TLS
+client.tls_insecure_set(True) # enable a client to overlap its IP address to connect to MQTT broker server
+client.connect(broker, port) # request connection to MQTT broker server over SSL/TLS
 time.sleep(2)
-client.loop_start() # Start looping for publishing / subscribing
-client.on_message = on_message # Register callback method for subscription
+client.loop_start() # start looping for publishing / subscribing
+client.on_message = on_message # register callback method for subscription
 
-# Register topic with .subscribe method
+# register topic with a .subscribe method
 client.subscribe(Topic_For_Sub_Door)
 
 
@@ -118,13 +116,6 @@ try:
     while True:
         res = rc_time(light_sensor)
         print(str(res)) # 조도 센서의 값 출력
-        
-        #if(res < 1000000):
-        #    print("Door Unlocked by Light Sensor")
-        #    setAngle(unlock_angle)
-        #else:
-        #    print("Door Locked by Light Sensor")
-        #    setAngle(lock_angle)
     
 except KeyboardInterrupt:
     pass
