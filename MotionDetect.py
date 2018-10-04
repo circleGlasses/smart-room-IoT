@@ -12,20 +12,20 @@ Token Definition
 
     - Publish
 
-        Description : Sending human detection state to Node Red Server through MQTT Broker Server
+        Description: Sending human detection state to Node-Red Server through MQTT Broker Server
         Topic For Publish : '/rooms/202/humanDetect'
         # 0 : Not detect , 1 : Detect
         
-        Description : If rule violation ocurred then send this state to Node Red Server through MQTT Broker Server
+        Description: If rule violation occurred then send this state to Node-Red Server through MQTT Broker Server
         Topic For Publish : '/rooms/202/ruleViolation'
         # 0 : Intrusion, 1 : Unoccupied
             
     - Subscribe
-        Description : Getting room state from Node Red Server through MQTT Broker Server
+        Description: Getting room state from Node-Red Server through MQTT Broker Server
         Topic For Subscribe : '/rooms/202/roomState'
         # 0 : Available, 1 : Occupied, 2 : Unoccupied
 '''
-# initialize global variables to decide whether Intrusion is occured
+# these following variables are used to judge whether a trespass has occurred
 roomState= 0 # 0 : Available, 1 : Occupied, 2 : Unoccupied
 humanState = 0 # 0 : Not detect , 1 : Detect
 
@@ -48,7 +48,7 @@ GPIO.output(27, 1)
 GPIO.setup(22, GPIO.OUT)
 GPIO.output(22, 1)
 
-# initialize Single Color LED, variables for Timer Function
+# initialize variables for timer function
 GPIO.setup(5, GPIO.OUT)
 GPIO.output(5, False)
 GPIO.setup(6, GPIO.OUT)
@@ -106,19 +106,17 @@ def change_global_variables_roomState(value):
     roomState = value
 
 def on_message(client, userdata, message):
-    #message.topic = message.topic.decode("utf-8")
-    #message.payload = message.payload.decode("utf-8")
     msg = str(message.topic)
     payload = str(message.payload)
     print(msg)
     print(payload)
  
-    # Set temperature or humidity to the value of user
+    # ---
     if(message.topic == Topic_For_Sub_roomState):
         if(message.payload.decode("utf-8") == '0' or message.payload.decode("utf-8") == '1' or message.payload.decode("utf-8") == '2'):
             change_global_variables_roomState(int(message.payload))
 
-            if(str(roomState) == '1'): # If guest is at hotel then turn on indoor light
+            if(str(roomState) == '1'): # If a guest is in a hotel room then turn on indoor lights
                 start_timer(0) # 0 : no action, 1 : reset
                 GPIO.setup(5, GPIO.OUT)
                 GPIO.output(5, True)
@@ -129,7 +127,7 @@ def on_message(client, userdata, message):
                 GPIO.setup(19, GPIO.OUT)
                 GPIO.output(19, True)
                 
-            else: # If guest is outside of hotel or no guest in hotel then turn off indoor light
+            else: # If a guest is out of the hotel then turn off indoor lights
                 GPIO.setup(5, GPIO.OUT)
                 GPIO.output(5, False)
                 GPIO.setup(6, GPIO.OUT)
@@ -141,16 +139,16 @@ def on_message(client, userdata, message):
             
             
             
-# Establish connection with broker over SSL/TLS protocol
+# establish a connection with a broker over SSL/TLS protocol
 client = paho.Client()
 client.tls_set("/home/pi/sw_contest/Scenario_MotionDetection/ca_pl.crt", tls_version=2) # tls_version=2 is refered to tlsv1.2
-client.tls_insecure_set(True) # Enable client to overlap its ip addr to connect to mqtt broker server
-client.connect(broker, port) # Request connection to mqtt broker server over SSL/TLS
+client.tls_insecure_set(True) # enable a client to overlap its IP address to connect to an MQTT broker server
+client.connect(broker, port) # request connection to MQTT broker server over SSL/TLS
 time.sleep(2)
-client.loop_start() # Start looping for publishing / subscribing
-client.on_message = on_message # Register callback method for subscription
+client.loop_start() # start looping for publishing / subscribing
+client.on_message = on_message # register callback method for subscription
 
-# Register topic with .subscribe method
+# register topic with a .subscribe method
 client.subscribe(Topic_For_Sub_roomState)
 
 print("Waiting for sensor to settle")
@@ -166,7 +164,7 @@ try:
             client.publish(Topic_For_Pub_humanDetect, 1) # if human detected then send detection state '1' to server
             time.sleep(2)
             
-            if(str(roomState) == '1'): # If anything not detected on Motion Sensor within 15 sec, roomState changed 1(Occupied) to 2(Unoccupied)
+            if(str(roomState) == '1'): # if anything not detected on Motion Sensor within 15 sec, roomState changed 1(Occupied) to 2(Unoccupied)
                 print('Start timer')
                 #start_timer(0) # 0 : no action, 1 : reset
                 change_global_variables_reset_ctl(1)
