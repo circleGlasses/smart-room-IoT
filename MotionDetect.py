@@ -33,7 +33,7 @@ humanState = 0 # 0 : Not detect , 1 : Detect
 Topic_For_Pub_ruleViolation = '/rooms/202/ruleViolation'
 Topic_For_Pub_humanDetect = '/rooms/202/humanDetect'
 Topic_For_Sub_roomState = '/rooms/202/roomState'
-broker = '163.152.223.99' # 사용하기 위해 인증서 Common Name 과 맞춰줘야 함 *중요
+broker = 'xxx.xxx.xxx.xxx' # 사용하기 위해 인증서 Common Name 과 맞춰줘야 함 *중요
 port = 8883 # SSL/TLS default version tlsv1.2
 
 # initialize variables for HumanDectection Sensor HC-SR501
